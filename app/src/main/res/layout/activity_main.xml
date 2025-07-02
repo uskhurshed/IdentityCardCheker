@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/firstSide"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#0095FF"
+        android:text="Лицевая сторона паспорта" />
+
+    <Button
+        android:id="@+id/secondSide"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#11B400"
+        android:text="Обратная сторона паспорта" />
+
+    <Button
+        android:id="@+id/faceSide"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#F87340"
+        android:text="Селфи с паспортом" />
+
+</LinearLayout>
