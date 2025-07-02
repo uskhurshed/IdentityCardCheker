@@ -15,11 +15,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
-import com.google.mlkit.vision.face.FaceContour.ContourType
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
-import com.google.mlkit.vision.face.FaceDetectorOptions.CONTOUR_MODE_NONE
-import com.google.mlkit.vision.face.FaceDetectorOptions.ContourMode
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import tj.itservice.identifycardcheker.databinding.ActivityMainBinding
@@ -30,42 +27,14 @@ class MainActivity : AppCompatActivity() {
     private val cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val bitmap = loadBitmapFromUri(photoUri)
-            if (bitmap == null) {
-                showToast("Не удалось загрузить фото")
-                return@registerForActivityResult
-            }
-
-            when (currentSide) {
-                CardSide.FRONT -> checkFace(bitmap) { faces ->
-                    if (faces.isEmpty()) {
-                        showToast("❌ Лицо не обнаружено")
-                        return@checkFace
-                    }
-                    val keywords = listOf("identity card", "republic of tajikistan", "national id")
-                    recognizeText(bitmap, keywords) { found ->
-                        if (found) showToast("✅ Паспорт валидный")
-                        else showToast("❌ Текст ID-карты не найден")
-                    }
-                }
-
-                CardSide.BACK -> recognizeText(bitmap, listOf("address", "idtjk")) { found ->
-                    if (found) showToast("✅ Паспорт валидный")
-                    else showToast("❌ Текст ID-карты не найден")
-                }
-
-                CardSide.FACE -> checkFace(bitmap) { faces ->
-                    if (faces.count() > 1) showToast("✅ Лицо обнаружено")
-                    else showToast("❌ Лицо не обнаружено")
-                }
-            }
+            if (bitmap == null) showToast("Не удалось загрузить фото")
+            else checkSide(bitmap)
         }
     }
 
-
     enum class CardSide { FRONT, BACK,FACE }
     private var currentSide = CardSide.FRONT
-    private lateinit var photoUri: Uri
-
+    private var photoUri: Uri? = null
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,9 +48,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     @Suppress("DEPRECATION")
-    private fun loadBitmapFromUri(uri: Uri) = try {
+    private fun loadBitmapFromUri(uri: Uri?) = try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri))
+            ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri!!))
         } else {
             MediaStore.Images.Media.getBitmap(contentResolver, uri)
         }
@@ -133,6 +102,30 @@ class MainActivity : AppCompatActivity() {
         }
         detectorProcess.addOnFailureListener {
             onResult.invoke(false)
+        }
+    }
+
+    private fun checkSide(bitmap: Bitmap) = when (currentSide) {
+        CardSide.FRONT -> checkFace(bitmap) { faces ->
+            if (faces.isEmpty()) {
+                showToast("❌ Лицо не обнаружено")
+                return@checkFace
+            }
+            val keywords = listOf("identity card", "republic of tajikistan", "national id")
+            recognizeText(bitmap, keywords) { found ->
+                if (found) showToast("✅ Паспорт валидный")
+                else showToast("❌ Текст ID-карты не найден")
+            }
+        }
+
+        CardSide.BACK -> recognizeText(bitmap, listOf("address", "idtjk")) { found ->
+            if (found) showToast("✅ Паспорт валидный")
+            else showToast("❌ Текст ID-карты не найден")
+        }
+
+        CardSide.FACE -> checkFace(bitmap) { faces ->
+            if (faces.count() > 1) showToast("✅ Лицо обнаружено")
+            else showToast("❌ Лицо не обнаружено")
         }
     }
 
