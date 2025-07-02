@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun openCameraIntent(side: CardSide) {
         currentSide = side
-        val photoFile = File(getExternalFilesDir("Pictures"), "face_photo.jpg")
+        val photoFile = File(getExternalFilesDir("Pictures"), "${side.name}_photo.jpg")
         photoUri = FileProvider.getUriForFile(this, "${packageName}.fileprovider", photoFile)
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
