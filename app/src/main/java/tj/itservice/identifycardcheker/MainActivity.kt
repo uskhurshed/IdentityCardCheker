@@ -108,24 +108,24 @@ class MainActivity : AppCompatActivity() {
     private fun checkSide(bitmap: Bitmap) = when (currentSide) {
         CardSide.FRONT -> checkFace(bitmap) { faces ->
             if (faces.isEmpty()) {
-                showToast("❌ Лицо не обнаружено")
+                showToast("⛔ Лицо не обнаружено")
                 return@checkFace
             }
             val keywords = listOf("identity card", "republic of tajikistan", "national id")
             recognizeText(bitmap, keywords) { found ->
                 if (found) showToast("✅ Паспорт валидный")
-                else showToast("❌ Текст ID-карты не найден")
+                else showToast("⛔ Текст ID-карты не найден")
             }
         }
 
         CardSide.BACK -> recognizeText(bitmap, listOf("address", "idtjk")) { found ->
             if (found) showToast("✅ Паспорт валидный")
-            else showToast("❌ Текст ID-карты не найден")
+            else showToast("⛔ Текст ID-карты не найден")
         }
 
         CardSide.FACE -> checkFace(bitmap) { faces ->
             if (faces.count() > 1) showToast("✅ Лицо обнаружено")
-            else showToast("❌ Лицо не обнаружено")
+            else showToast("⛔ Лицо не обнаружено")
         }
     }
 
