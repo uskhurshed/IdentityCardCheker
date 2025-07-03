@@ -78,7 +78,6 @@ class MainActivity : AppCompatActivity() {
             .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
             .build()
 
-
         val detector = FaceDetection.getClient(options)
 
         val detectorProcess = detector.process(image)
