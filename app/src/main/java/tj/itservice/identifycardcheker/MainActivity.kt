@@ -90,20 +90,36 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun recognizeText(bitmap: Bitmap,keywords: List<String> = listOf(), onResult: (Boolean) -> Unit = {}) {
-        val image = InputImage.fromBitmap(bitmap, 0)
-        val options = TextRecognizerOptions.Builder().build()
-        val recognizer = TextRecognition.getClient(options)
+    private fun recognizeText(bitmap: Bitmap, keywords: List<String> = listOf(), onResult: (Boolean) -> Unit = {}) {
+        val angles = listOf(0f, 90f, 180f, 270f)
+        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
-        val detectorProcess =  recognizer.process(image)
-        detectorProcess.addOnSuccessListener { visionText ->
-            val found = keywords.all { keyword ->  visionText.text.lowercase().contains(keyword) }
-            onResult.invoke(found)
+        fun rotateBitmap(src: Bitmap, degrees: Float): Bitmap {
+            if (degrees == 0f) return src
+            val matrix = android.graphics.Matrix()
+            matrix.postRotate(degrees)
+            return Bitmap.createBitmap(src, 0, 0, src.width, src.height, matrix, true)
         }
-        detectorProcess.addOnFailureListener {
-            onResult.invoke(false)
+
+        fun tryRecognize(index: Int) {
+            if (index >= angles.size) {
+                onResult(false)
+                return
+            }
+            val rotated = rotateBitmap(bitmap, angles[index])
+            val detector = recognizer.process(InputImage.fromBitmap(rotated, 0))
+            detector.addOnSuccessListener { visionText ->
+                val text = visionText.text.lowercase()
+                val found = keywords.all { keyword -> text.contains(keyword) }
+                if (found) onResult(true)
+                else tryRecognize(index + 1)
+            }
+            detector.addOnFailureListener { tryRecognize(index + 1) }
         }
+
+        tryRecognize(0)
     }
+
 
     private fun checkSide(bitmap: Bitmap) = when (currentSide) {
         CardSide.FRONT -> checkFace(bitmap) { faces ->
