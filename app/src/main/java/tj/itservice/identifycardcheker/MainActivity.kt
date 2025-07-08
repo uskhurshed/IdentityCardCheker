@@ -73,9 +73,9 @@ class MainActivity : AppCompatActivity() {
         val image = InputImage.fromBitmap(bitmap, 0)
 
         val options = FaceDetectorOptions.Builder()
-            .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
-            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
-            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+            .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
+            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
             .build()
 
         val detector = FaceDetection.getClient(options)
@@ -126,7 +126,7 @@ class MainActivity : AppCompatActivity() {
                 showToast("⛔ Лицо не обнаружено")
                 return@checkFace
             }
-            val keywords = listOf("identity card", "republic of tajikistan", "national id")
+            val keywords = listOf("identity card", "republic of tajikistan", "id no")
             recognizeText(bitmap, keywords) { found ->
                 if (found) showToast("✅ Паспорт валидный")
                 else showToast("⛔ Текст ID-карты не найден")
